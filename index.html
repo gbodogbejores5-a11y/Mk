@@ -721,7 +721,14 @@ Je Te demande simplement de continuer à veiller sur elle, aujourd'hui et pour t
     }
   }
 
-  const PASSWORD = "Mikha1.0";
+  // Le mot de passe n'est jamais stocké en clair dans le code : on compare
+  // son empreinte SHA-256 à l'empreinte attendue.
+  const PASSWORD_HASH = "de682f20294967873706f1789beeb88abe9e73476a117642c1677c5969ebac8a";
+  async function sha256(text){
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
   const gate = document.getElementById('gate');
   const unlock = document.getElementById('unlock');
   const content = document.getElementById('content');
@@ -729,10 +736,11 @@ Je Te demande simplement de continuer à veiller sur elle, aujourd'hui et pour t
   const btn = document.getElementById('enter-btn');
   const err = document.getElementById('gate-error');
 
-  function tryEnter(){
+  async function tryEnter(){
     if(btn.disabled) return;
-    if(pw.value.trim() === PASSWORD){
-      btn.disabled = true;
+    btn.disabled = true;
+    const candidateHash = await sha256(pw.value.trim());
+    if(candidateHash === PASSWORD_HASH){
       gate.classList.add('hidden');
       unlock.classList.add('active');
       spawnBurst();
@@ -743,6 +751,7 @@ Je Te demande simplement de continuer à veiller sur elle, aujourd'hui et pour t
         document.body.classList.add('unlocked');
       }, waitTime);
     } else {
+      btn.disabled = false;
       err.textContent = "Ce n'est pas tout à fait ça...";
       pw.style.borderBottomColor = '#C98B7A';
       setTimeout(()=>{ pw.style.borderBottomColor = ''; }, 900);
