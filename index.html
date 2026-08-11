@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pour Mikha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wine:#4A1518;
+    --wine-deep:#2E0D0F;
+    --ink:#181210;
+    --gold:#C9A24B;
+    --gold-soft:#E4CD8E;
+    --ivory:#F4EDE0;
+    --blush:#C98B7A;
+    --serif: 'Cormorant Garamond', serif;
+    --sans: 'Jost', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--sans);
+    background:var(--ivory);
+    color:var(--ink);
+    overflow-x:hidden;
+    overflow-y:hidden;
+  }
+  body.unlocked{ overflow-y:auto; }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important;}
+  }
+
+  /* ---------- CANDLE / SIGNATURE MOTIF ---------- */
+  .candle{
+    width:14px;
+    height:46px;
+    margin:0 auto;
+    position:relative;
+  }
+  .candle .body{
+    position:absolute;
+    bottom:0; left:50%;
+    transform:translateX(-50%);
+    width:12px; height:34px;
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+    border-radius:2px;
+  }
+  .candle .flame{
+    position:absolute;
+    top:-16px; left:50%;
+    width:11px; height:20px;
+    transform:translateX(-50%);
+    background:radial-gradient(circle at 50% 70%, #FFE9B8 0%, var(--gold) 45%, var(--blush) 80%, transparent 100%);
+    border-radius:50% 50% 50% 50% / 65% 65% 35% 35%;
+    filter:blur(0.2px);
+    animation:flicker 2.6s ease-in-out infinite;
+    transform-origin:50% 90%;
+  }
+  @keyframes flicker{
+    0%,100%{ transform:translateX(-50%) rotate(-2deg) scaleY(1); opacity:1;}
+    25%{ transform:translateX(-50%) rotate(2deg) scaleY(1.05); opacity:0.92;}
+    50%{ transform:translateX(-50%) rotate(-1deg) scaleY(0.96); opacity:1;}
+    75%{ transform:translateX(-50%) rotate(3deg) scaleY(1.03); opacity:0.9;}
+  }
+
+  /* ---------- PETALS (fond animé, permanent) ---------- */
+  #petals{
+    position:fixed;
+    inset:0;
+    z-index:40;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .petal{
+    position:absolute;
+    bottom:-40px;
+    opacity:0;
+    animation-name:rise;
+    animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite;
+    will-change:transform, opacity;
+  }
+  .petal svg{ display:block; }
+  @keyframes rise{
+    0%{ transform:translate(0,0) rotate(0deg); opacity:0; }
+    8%{ opacity:0.85; }
+    50%{ transform:translate(var(--drift,26px), -52vh) rotate(160deg); opacity:0.75; }
+    92%{ opacity:0.6; }
+    100%{ transform:translate(calc(var(--drift,26px) * -1), -108vh) rotate(320deg); opacity:0; }
+  }
+
+  /* ---------- GATE ---------- */
+  #gate{
+    position:fixed; inset:0; z-index:100;
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(201,162,75,0.14), transparent 60%),
+      linear-gradient(160deg, var(--wine-deep), var(--ink) 85%);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    transition:opacity 0.7s ease, visibility 0.7s ease;
+  }
+  #gate.hidden{opacity:0; visibility:hidden; pointer-events:none;}
+  .gate-box{
+    text-align:center;
+    max-width:380px;
+    width:100%;
+  }
+  .gate-eyebrow{
+    font-family:var(--sans);
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    font-size:11px;
+    color:var(--gold-soft);
+    opacity:0.85;
+    margin-top:22px;
+  }
+  .gate-title{
+    font-family:var(--serif);
+    font-style:italic;
+    font-weight:500;
+    color:var(--ivory);
+    font-size:clamp(28px,7vw,38px);
+    margin:10px 0 6px;
+  }
+  .gate-sub{
+    color:#cbb9a8;
+    font-size:14px;
+    font-weight:300;
+    margin-bottom:30px;
+    line-height:1.6;
+  }
+  .gate-form{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    align-items:center;
+  }
+  #pw{
+    width:100%;
+    max-width:260px;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid rgba(228,205,142,0.4);
+    color:var(--ivory);
+    text-align:center;
+    font-family:var(--sans);
+    font-size:15px;
+    letter-spacing:0.08em;
+    padding:10px 4px;
+    outline:none;
+    transition:border-color 0.3s;
+  }
+  #pw:focus{border-bottom-color:var(--gold);}
+  #pw::placeholder{color:#8a7666; letter-spacing:0.08em;}
+  .gate-btn{
+    margin-top:6px;
+    background:transparent;
+    border:1px solid var(--gold);
+    color:var(--gold-soft);
+    font-family:var(--sans);
+    font-size:12px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    padding:12px 34px;
+    cursor:pointer;
+    transition:background 0.35s, color 0.35s;
+  }
+  .gate-btn:hover{background:var(--gold); color:var(--wine-deep);}
+  .gate-btn:disabled{opacity:0.5; cursor:default;}
+  .gate-error{
+    color:var(--blush);
+    font-size:12.5px;
+    height:16px;
+    letter-spacing:0.02em;
+  }
+
+  /* ---------- UNLOCK ANIMATION (5s, apparaît après le bon mot de passe) ---------- */
+  #unlock{
+    position:fixed; inset:0; z-index:95;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(201,162,75,0.22), transparent 60%),
+      linear-gradient(160deg, var(--wine-deep), var(--ink) 85%);
+    display:none;
+    align-items:center; justify-content:center;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  #unlock.active{display:flex;}
+  #unlock-petals{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+  .burst-petal{
+    position:absolute;
+    top:50%; left:50%;
+    opacity:0;
+    animation-name:burst;
+    animation-timing-function:cubic-bezier(.19,1,.22,1);
+    animation-fill-mode:forwards;
+    will-change:transform, opacity;
+  }
+  @keyframes burst{
+    0%{ transform:translate(-50%,-50%) translate(0,0) rotate(0deg) scale(0.4); opacity:0; }
+    12%{ opacity:1; }
+    70%{ opacity:0.85; }
+    100%{ transform:translate(-50%,-50%) translate(var(--bx), var(--by)) rotate(var(--br)) scale(1); opacity:0; }
+  }
+  .unlock-text{ text-align:center; position:relative; z-index:2; }
+  .unlock-text span{ display:block; opacity:0; transform:translateY(16px); }
+  .unlock-text .u-eyebrow{
+    font-family:var(--sans);
+    letter-spacing:0.34em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:var(--gold-soft);
+    animation:unlockFade 0.9s ease forwards 0.35s;
+  }
+  .unlock-text .u-name{
+    font-family:var(--serif);
+    font-style:italic;
+    font-weight:600;
+    font-size:clamp(52px,13vw,110px);
+    color:var(--ivory);
+    line-height:1;
+    margin:8px 0;
+    animation:unlockFade 1s ease forwards 1.1s;
+  }
+  .unlock-text .u-wish{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(16px,3vw,20px);
+    color:#e7d8c4;
+    animation:unlockFade 1s ease forwards 2.5s;
+  }
+  @keyframes unlockFade{
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ---------- CONTENT ---------- */
+  #content{
+    opacity:0;
+    transition:opacity 1.1s ease 0.15s;
+  }
+  #content.show{opacity:1;}
+
+  section{
+    padding:100px 22px;
+    position:relative;
+  }
+
+  /* HERO */
+  .hero{
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(201,162,75,0.10), transparent 55%),
+      var(--ivory);
+    padding-top:60px;
+  }
+  .hero .eyebrow{
+    font-size:11px;
+    letter-spacing:0.34em;
+    text-transform:uppercase;
+    color:var(--wine);
+    opacity:0.75;
+    margin-top:20px;
+  }
+  .hero h1{
+    font-family:var(--serif);
+    font-style:italic;
+    font-weight:600;
+    font-size:clamp(64px,16vw,140px);
+    color:var(--wine);
+    line-height:0.95;
+    margin:14px 0;
+  }
+  .hero p{
+    font-family:var(--serif);
+    font-size:clamp(17px,3vw,21px);
+    color:#5c4436;
+    max-width:480px;
+    line-height:1.6;
+    font-weight:400;
+  }
+  .scroll-cue{
+    margin-top:56px;
+    font-size:10.5px;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--wine);
+    opacity:0.55;
+    animation:bob 2.4s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(8px);}
+  }
+
+  /* SECTION HEADERS */
+  .section-head{
+    text-align:center;
+    margin-bottom:56px;
+  }
+  .section-head .eyebrow{
+    font-size:11px;
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:block;
+    margin-bottom:10px;
+  }
+  .section-head h2{
+    font-family:var(--serif);
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(32px,6vw,48px);
+    color:var(--wine);
+  }
+
+  /* GALLERY / DIAPORAMA */
+  .gallery{
+    background:var(--ivory);
+  }
+  .carousel{
+    max-width:520px;
+    margin:0 auto;
+    position:relative;
+  }
+  .frame{
+    position:relative;
+    aspect-ratio:4/5;
+    overflow:hidden;
+    border:1px solid var(--gold);
+    box-shadow:0 30px 60px -20px rgba(74,21,24,0.35);
+    background:var(--ink);
+  }
+  .frame::after{
+    content:'';
+    position:absolute; inset:8px;
+    border:1px solid rgba(244,237,224,0.35);
+    pointer-events:none;
+  }
+  .slide{
+    position:absolute; inset:0;
+    opacity:0;
+    transition:opacity 1.1s ease;
+  }
+  .slide.active{opacity:1;}
+  .slide img{
+    width:100%; height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .slide .cap{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    padding:22px 20px 16px;
+    background:linear-gradient(0deg, rgba(24,18,16,0.75), transparent);
+    color:var(--ivory);
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:17px;
+    text-align:center;
+  }
+  .dots{
+    display:flex; justify-content:center; gap:9px;
+    margin-top:22px;
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(74,21,24,0.25);
+    cursor:pointer;
+    transition:background 0.3s, transform 0.3s;
+  }
+  .dot.active{background:var(--wine); transform:scale(1.25);}
+
+  /* MESSAGE */
+  .message{
+    background:var(--wine);
+    color:var(--ivory);
+  }
+  .message .section-head .eyebrow{color:var(--gold-soft);}
+  .message .section-head h2{color:var(--ivory);}
+  .letter{
+    max-width:620px;
+    margin:0 auto;
+  }
+  .letter p{
+    font-family:var(--serif);
+    font-size:clamp(18px,2.6vw,21px);
+    line-height:1.85;
+    font-weight:400;
+    color:#f1e6d8;
+    margin-bottom:24px;
+  }
+  .letter p:first-of-type::first-letter{
+    font-size:64px;
+    line-height:0.8;
+    float:left;
+    padding-right:12px;
+    padding-top:6px;
+    color:var(--gold);
+    font-style:normal;
+  }
+  .signoff{
+    text-align:right;
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:22px;
+    color:var(--gold-soft);
+    margin-top:36px;
+  }
+
+  .keepsake{
+    max-width:620px;
+    margin:56px auto 0;
+    text-align:center;
+  }
+  .keepsake-double{
+    max-width:620px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:28px;
+    justify-content:center;
+  }
+  .keepsake .kframe{
+    display:inline-block;
+    border:1px solid var(--gold);
+    padding:10px;
+    background:rgba(244,237,224,0.04);
+    flex:1 1 240px;
+    max-width:280px;
+  }
+  .keepsake img{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+  .keepsake .kcap{
+    margin-top:14px;
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:15.5px;
+    color:var(--gold-soft);
+  }
+
+  /* PRAYER */
+  .prayer{
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(201,162,75,0.12), transparent 55%),
+      var(--ink);
+    color:var(--ivory);
+    text-align:center;
+  }
+  .prayer .candle{margin-bottom:26px;}
+  .prayer .section-head h2{color:var(--ivory);}
+  .prayer .section-head .eyebrow{color:var(--gold-soft);}
+  .prayer-text{
+    max-width:560px;
+    margin:0 auto;
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:clamp(18px,2.8vw,22px);
+    line-height:2;
+    color:#efe3d2;
+  }
+  .prayer-text .amen{
+    display:block;
+    margin-top:26px;
+    font-style:normal;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    font-size:12px;
+    color:var(--gold);
+  }
+
+  /* FOOTER */
+  footer{
+    background:var(--ivory);
+    text-align:center;
+    padding:70px 22px 60px;
+  }
+  footer .candle{margin-bottom:20px;}
+  footer h3{
+    font-family:var(--serif);
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(24px,5vw,32px);
+    color:var(--wine);
+    margin-bottom:8px;
+  }
+  footer p{
+    font-size:13px;
+    color:#8a7666;
+    letter-spacing:0.05em;
+  }
+
+  @media (max-width:480px){
+    section{padding:80px 18px;}
+  }
+</style>
+</head>
+<body>
+
+  <div id="petals" aria-hidden="true"></div>
+
+  <!-- ===== GATE ===== -->
+  <div id="gate">
+    <div class="gate-box">
+      <div class="candle"><div class="flame"></div><div class="body"></div></div>
+      <div class="gate-eyebrow">Un espace rien que pour toi</div>
+      <div class="gate-title">Pour Mikha</div>
+      <div class="gate-sub">Ce mot de passe, tu le connais déjà.<br>Entre-le pour ouvrir ton cadeau.</div>
+      <div class="gate-form">
+        <input type="password" id="pw" placeholder="mot de passe" autocomplete="off">
+        <button class="gate-btn" id="enter-btn">Entrer</button>
+        <div class="gate-error" id="gate-error"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== UNLOCK ANIMATION (5s) ===== -->
+  <div id="unlock">
+    <div id="unlock-petals" aria-hidden="true"></div>
+    <div class="unlock-text">
+      <span class="u-eyebrow">Joyeux anniversaire</span>
+      <span class="u-name">Mikha</span>
+      <span class="u-wish">Que cette nouvelle année t'apporte tout ce que tu mérites</span>
+    </div>
+  </div>
+
+  <!-- ===== CONTENT ===== -->
+  <div id="content">
+
+    <section class="hero">
+      <div class="candle"><div class="flame"></div><div class="body"></div></div>
+      <div class="eyebrow">Joyeux anniversaire</div>
+      <h1>Mikha</h1>
+      <p>Je t'appelle Chouee depuis toujours, et c'est resté. Ce petit coin du web, c'est pour toi — pour te dire, à ma façon, tout ce que je ne dis pas assez souvent.</p>
+      <div class="scroll-cue">fais défiler ↓</div>
+    </section>
+
+    <section class="gallery">
+      <div class="section-head">
+        <span class="eyebrow">Quelques instants</span>
+        <h2>Elle, simplement</h2>
+      </div>
+      <div class="carousel">
+        <div class="frame" id="frame">
+          <div class="slide active">
+            <img src="images/mk-portrait.png" alt="Portrait de Mk">
+            <div class="cap">Toujours elle-même, même sous les projecteurs</div>
+          </div>
+          <div class="slide">
+            <img src="images/mk-plage-selfie.png" alt="Mk au bord de la mer">
+            <div class="cap">Le sourire qu'on n'oublie pas</div>
+          </div>
+          <div class="slide">
+            <img src="images/mk-rire.png" alt="Mk qui rit">
+            <div class="cap">Un fou rire capturé au vol</div>
+          </div>
+          <div class="slide">
+            <img src="images/mk-plage-marche.png" alt="Mk face à l'océan">
+            <div class="cap">Face au large, sans rien à prouver</div>
+          </div>
+        </div>
+        <div class="dots" id="dots"></div>
+      </div>
+    </section>
+
+    <section class="message">
+      <div class="section-head">
+        <span class="eyebrow">Ce que j'avais à te dire</span>
+        <h2>Mikha,</h2>
+      </div>
+      <div class="letter">
+  <p>Il y a des amitiés qui se contentent d'exister, et il y a la nôtre — celle qui a pris le temps de grandir, de traverser les années, et de devenir quelque chose de rare.</p>
+
+  <p>Je crois que peu de gens ont la chance de connaître quelqu'un comme toi : sincère, entière, drôle sans forcer, forte sans en faire trop. Ces choses-là, je les remarque, même quand je ne le dis pas assez.</p>
+
+  <p>On a grandi, un peu, depuis nos débuts. Et ce que je ressens aujourd'hui pour toi est vrai et profond, sans rien vouloir précipiter. Tu as pris une place importante dans ma vie et je tiens sincèrement à ce lien qu'on a construit au fil du temps.</p>
+
+  <p>Je sais qu'on ne peut pas toujours prévoir où les choses nous mèneront, et justement, je ne veux pas chercher à tout définir ou à tout contrôler. Je veux simplement continuer à être là, à partager nos discussions, nos délires, nos moments sérieux et même nos silences. Je veux que ce qu'on a construit puisse continuer à grandir naturellement, sans pression et sans avoir besoin de devenir autre chose pour avoir de la valeur.</p>
+
+  <p>Il y a probablement beaucoup de choses que je ne dis pas toujours correctement. Parfois je réfléchis trop, parfois je ne trouve simplement pas les bons mots. Mais s'il y a une chose que je veux que tu comprennes, c'est que tu comptes réellement pour moi. Et je tiens à ce que tu le saches, pas seulement aujourd'hui, mais aussi dans les moments où je ne pense pas à te le dire.</p>
+
+  <p>Alors aujourd'hui, pour ton anniversaire, je voulais simplement te rappeler une chose : je suis reconnaissant pour tout ce qu'on a déjà partagé et pour la personne que tu es. Je ne sais pas exactement ce que l'avenir nous réserve, mais je sais que je veux continuer à avancer avec respect, sincérité et sans brusquer ce qui existe entre nous.</p>
+
+  <p>Ce site, ces photos, ces mots — c'est ma façon de te montrer à quel point cette journée compte pour moi et à quel point je voulais faire quelque chose de spécial pour toi.</p>
+
+  <div class="signoff">Joyeux anniversaire, Mk. 🤍</div>
+</div>
+
+
+      <div class="keepsake keepsake-double">
+        <div class="kframe">
+          <img src="images/mk-plage-marche.png" alt="Souvenir ensemble, en marchant">
+          <div class="kcap">Nos pas, dans le même sens</div>
+        </div>
+        <div class="kframe">
+          <img src="images/mk-et-lui.jpg" alt="Souvenir ensemble, en riant">
+          <div class="kcap">Un souvenir qui a grandi avec nous</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="prayer">
+      <div class="candle"><div class="flame"></div><div class="body"></div></div>
+      <div class="section-head">
+        <span class="eyebrow">Une prière pour toi</span>
+        <h2>Que la vie t'entoure de douceur</h2>
+      </div>
+      <div class="prayer-text">
+  Seigneur,
+
+<br><br>
+
+En ce jour particulier, je Te confie sa vie, son cœur et tout ce qui l'attend dans cette nouvelle année.
+
+<br><br>
+
+Que chaque matin qui se lève trouve son cœur en paix.<br>
+Donne-lui la force dans les moments difficiles, la sagesse dans ses décisions et la joie dans les petites comme dans les grandes choses.<br>
+Garde ses pas, protège-la de ce qui pourrait lui faire du mal et éclaire sa route lorsque l'avenir lui semble incertain.<br>
+Que les projets qu'elle porte dans son cœur puissent grandir selon Ta volonté.<br>
+Entoure-la de personnes sincères, capables de l'aimer, de la respecter et de lui apporter du bien.<br>
+Et surtout, rappelle-lui dans les moments où elle doutera qu'elle n'est jamais seule.
+
+<br><br>
+
+Bénis cette nouvelle année de sa vie.<br>
+Que ce soit une année de croissance, de paix, de belles rencontres, de réussite et de souvenirs qu'elle gardera longtemps.
+
+<br><br>
+
+Je Te remercie pour sa vie et pour tout ce qu'elle représente.<br>
+Je Te demande simplement de continuer à veiller sur elle, aujourd'hui et pour toutes les années à venir. <br>
+
+« Que l’Éternel te bénisse et qu’il te garde ! Que l’Éternel fasse briller sa face sur toi et qu’il t’accorde sa grâce ! Que l’Éternel se tourne vers toi et te donne la paix ! »
+— Nombres 6:24-
+
+<span class="amen">Amen.</span>
+
+</div>
+
+    </section>
+
+    <footer>
+      <div class="candle"><div class="flame"></div><div class="body"></div></div>
+      <h3>Bon anniversaire, Mikha.</h3>
+      <p>Avec toute mon estime — de la part de quelqu'un qui tient à toi.</p>
+    </footer>
+
+  </div>
+
+<script>
+  const REDUCE_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const flowerSVG = (color, size) => `
+    <svg width="${size}" height="${size}" viewBox="0 0 20 20">
+      <g fill="${color}" opacity="0.9">
+        <ellipse cx="10" cy="5.2" rx="3.1" ry="4.4"/>
+        <ellipse cx="14.8" cy="10" rx="4.4" ry="3.1"/>
+        <ellipse cx="10" cy="14.8" rx="3.1" ry="4.4"/>
+        <ellipse cx="5.2" cy="10" rx="4.4" ry="3.1"/>
+      </g>
+      <circle cx="10" cy="10" r="2.1" fill="#4A1518" opacity="0.55"/>
+    </svg>`;
+  const COLORS = ['#C9A24B','#E4CD8E','#C98B7A','#F4EDE0'];
+
+  // Petites fleurs flottantes en arrière-plan permanent
+  (function(){
+    if(REDUCE_MOTION) return;
+    const wrap = document.getElementById('petals');
+    const total = 16;
+    for(let i=0;i<total;i++){
+      const p = document.createElement('div');
+      p.className = 'petal';
+      const size = 12 + Math.random()*14;
+      const left = Math.random()*100;
+      const duration = 14 + Math.random()*12;
+      const delay = Math.random()*-20;
+      const drift = (14 + Math.random()*40) * (Math.random() < 0.5 ? -1 : 1);
+      const color = COLORS[Math.floor(Math.random()*COLORS.length)];
+      p.style.left = left + 'vw';
+      p.style.width = size + 'px';
+      p.style.animationDuration = duration + 's';
+      p.style.animationDelay = delay + 's';
+      p.style.setProperty('--drift', drift + 'px');
+      p.innerHTML = flowerSVG(color, size);
+      wrap.appendChild(p);
+    }
+  })();
+
+  // Explosion de fleurs pour l'animation de déverrouillage
+  function spawnBurst(){
+    const wrap = document.getElementById('unlock-petals');
+    wrap.innerHTML = '';
+    const total = REDUCE_MOTION ? 0 : 34;
+    for(let i=0;i<total;i++){
+      const p = document.createElement('div');
+      p.className = 'burst-petal';
+      const size = 10 + Math.random()*16;
+      const angle = Math.random()*Math.PI*2;
+      const dist = 160 + Math.random()*260;
+      const bx = Math.cos(angle)*dist;
+      const by = Math.sin(angle)*dist;
+      const rot = (Math.random()*360-180);
+      const dur = 2.2 + Math.random()*1.8;
+      const delay = Math.random()*1.4;
+      const color = COLORS[Math.floor(Math.random()*COLORS.length)];
+      p.style.width = size + 'px';
+      p.style.setProperty('--bx', bx + 'px');
+      p.style.setProperty('--by', by + 'px');
+      p.style.setProperty('--br', rot + 'deg');
+      p.style.animationDuration = dur + 's';
+      p.style.animationDelay = delay + 's';
+      p.innerHTML = flowerSVG(color, size);
+      wrap.appendChild(p);
+    }
+  }
+
+  const PASSWORD = "MkJrs";
+  const gate = document.getElementById('gate');
+  const unlock = document.getElementById('unlock');
+  const content = document.getElementById('content');
+  const pw = document.getElementById('pw');
+  const btn = document.getElementById('enter-btn');
+  const err = document.getElementById('gate-error');
+
+  function tryEnter(){
+    if(btn.disabled) return;
+    if(pw.value.trim() === PASSWORD){
+      btn.disabled = true;
+      gate.classList.add('hidden');
+      unlock.classList.add('active');
+      spawnBurst();
+      const waitTime = REDUCE_MOTION ? 900 : 5000;
+      setTimeout(()=>{
+        unlock.classList.remove('active');
+        content.classList.add('show');
+        document.body.classList.add('unlocked');
+      }, waitTime);
+    } else {
+      err.textContent = "Ce n'est pas tout à fait ça...";
+      pw.style.borderBottomColor = '#C98B7A';
+      setTimeout(()=>{ pw.style.borderBottomColor = ''; }, 900);
+    }
+  }
+  btn.addEventListener('click', tryEnter);
+  pw.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') tryEnter(); });
+
+  // Carousel
+  const slides = document.querySelectorAll('.slide');
+  const dotsWrap = document.getElementById('dots');
+  let current = 0;
+
+  slides.forEach((_, i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===0 ? ' active' : '');
+    d.addEventListener('click', ()=> goTo(i));
+    dotsWrap.appendChild(d);
+  });
+  const dots = document.querySelectorAll('.dot');
+
+  function goTo(i){
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+  }
+
+  setInterval(()=>{
+    goTo((current + 1) % slides.length);
+  }, 4200);
+</script>
+</body>
+</html>
